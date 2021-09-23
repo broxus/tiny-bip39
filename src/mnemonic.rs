@@ -1,13 +1,13 @@
-use std::fmt;
-use anyhow::Error;
-use std::mem;
-use unicode_normalization::UnicodeNormalization;
-use zeroize::Zeroize;
 use crate::crypto::{gen_random_bytes, sha256_first_byte};
 use crate::error::ErrorKind;
 use crate::language::Language;
 use crate::mnemonic_type::MnemonicType;
 use crate::util::{checksum, BitWriter, IterExt};
+use anyhow::Error;
+use std::fmt;
+use std::mem;
+use unicode_normalization::UnicodeNormalization;
+use zeroize::Zeroize;
 
 /// The primary type in this crate, most tasks require creating or using one.
 ///
@@ -34,12 +34,18 @@ use crate::util::{checksum, BitWriter, IterExt};
 /// [Seed::new()]: ./seed/struct.Seed.html#method.new
 /// [Seed::as_bytes()]: ./seed/struct.Seed.html#method.as_bytes
 ///
-#[derive(Clone, Zeroize)]
-#[zeroize(drop)]
+#[derive(Clone)]
 pub struct Mnemonic {
     phrase: String,
     lang: Language,
     entropy: Vec<u8>,
+}
+
+impl Zeroize for Mnemonic {
+    fn zeroize(&mut self) {
+        self.phrase.zeroize();
+        self.entropy.zeroize();
+    }
 }
 
 impl Mnemonic {
@@ -190,8 +196,8 @@ impl Mnemonic {
         // Preallocate enough space for the longest possible word list
         let mut bits = BitWriter::with_capacity(264);
 
-        for word in phrase.split(" ") {
-            bits.push(wordmap.get_bits(&word)?);
+        for word in phrase.split(' ') {
+            bits.push(wordmap.get_bits(word)?);
         }
 
         let mtype = MnemonicType::for_word_count(bits.len() / 11)?;
@@ -213,7 +219,7 @@ impl Mnemonic {
         let expected_checksum = checksum(checksum_byte, mtype.checksum_bits());
 
         if actual_checksum != expected_checksum {
-            Err(ErrorKind::InvalidChecksum)?;
+            return Err(ErrorKind::InvalidChecksum.into());
         }
 
         Ok(entropy)
@@ -228,7 +234,7 @@ impl Mnemonic {
     pub fn into_phrase(mut self) -> String {
         // Create an empty string and swap values with the mnemonic's phrase.
         // This allows `Mnemonic` to implement `Drop`, while still returning the phrase.
-        mem::replace(&mut self.phrase, String::new())
+        mem::take(&mut self.phrase)
     }
 
     /// Get the original entropy value of the mnemonic phrase as a slice.

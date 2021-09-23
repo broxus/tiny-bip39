@@ -1,6 +1,6 @@
-use std::fmt;
-use anyhow::Error;
 use crate::error::ErrorKind;
+use anyhow::Error;
+use std::fmt;
 
 const ENTROPY_OFFSET: usize = 8;
 
@@ -58,7 +58,7 @@ impl MnemonicType {
             18 => MnemonicType::Words18,
             21 => MnemonicType::Words21,
             24 => MnemonicType::Words24,
-            _ => Err(ErrorKind::InvalidWordLength(size))?,
+            _ => return Err(ErrorKind::InvalidWordLength(size).into()),
         };
 
         Ok(mnemonic_type)
@@ -82,7 +82,7 @@ impl MnemonicType {
             192 => MnemonicType::Words18,
             224 => MnemonicType::Words21,
             256 => MnemonicType::Words24,
-            _ => Err(ErrorKind::InvalidKeysize(size))?,
+            _ => return Err(ErrorKind::InvalidKeysize(size).into()),
         };
 
         Ok(mnemonic_type)
@@ -110,7 +110,7 @@ impl MnemonicType {
     ///
     /// [MnemonicType::entropy_bits()]: ./enum.MnemonicType.html#method.entropy_bits
     pub fn for_phrase(phrase: &str) -> Result<MnemonicType, Error> {
-        let word_count = phrase.split(" ").count();
+        let word_count = phrase.split(' ').count();
 
         Self::for_word_count(word_count)
     }
