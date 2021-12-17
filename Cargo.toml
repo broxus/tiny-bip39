@@ -39,7 +39,6 @@ hmac = "0.11.0"
 pbkdf2 = { version = "0.9.0", default-features = false }
 rand = "0.8.4"
 once_cell = { version = "1.8.0", features = ["parking_lot"] }
-parking_lot = { version = "0.11.1", features = ["wasm-bindgen"] }
 unicode-normalization = "0.1.13"
 zeroize = { version = "1.4.2", features = ["zeroize_derive"] }
 

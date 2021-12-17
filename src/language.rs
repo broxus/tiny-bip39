@@ -240,7 +240,7 @@ mod test {
                 return false;
             }
         }
-        return true;
+        true
     }
 
     #[test]
