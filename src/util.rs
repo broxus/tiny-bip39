@@ -1,6 +1,6 @@
 use unicode_normalization::Decompositions;
 
-pub(crate) trait IterExt: Iterator {
+pub trait IterExt: Iterator {
     fn join<R>(&mut self, glue: &str) -> R
     where
         R: From<String>,
@@ -35,7 +35,7 @@ pub(crate) trait IterExt: Iterator {
     }
 }
 
-pub(crate) trait Joinable {
+pub trait Joinable {
     fn write_into(self, buf: &mut String);
 }
 
@@ -55,7 +55,7 @@ impl<I: Iterator<Item = char>> Joinable for Decompositions<I> {
 
 impl<I: Iterator> IterExt for I {}
 
-pub(crate) trait Bits {
+pub trait Bits {
     const SIZE: usize;
 
     fn bits(self) -> u32;
@@ -100,7 +100,7 @@ impl From<Bits11> for u16 {
     }
 }
 
-pub(crate) struct BitWriter {
+pub struct BitWriter {
     offset: usize,
     remainder: u32,
     inner: Vec<u8>,
@@ -147,7 +147,7 @@ impl BitWriter {
     }
 }
 
-pub(crate) struct BitIter<In: Bits, Out: Bits, I: Iterator<Item = In> + Sized> {
+pub struct BitIter<In: Bits, Out: Bits, I: Iterator<Item = In> + Sized> {
     _phantom: ::std::marker::PhantomData<Out>,
     source: I,
     read: usize,
@@ -205,7 +205,7 @@ where
 }
 
 /// Extract the first `bits` from the `source` byte
-pub(crate) fn checksum(source: u8, bits: u8) -> u8 {
+pub fn checksum(source: u8, bits: u8) -> u8 {
     debug_assert!(bits <= 8, "Can operate on 8-bit integers only");
 
     source >> (8 - bits)

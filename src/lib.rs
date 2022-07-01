@@ -32,7 +32,7 @@ mod language;
 mod mnemonic;
 mod mnemonic_type;
 mod seed;
-mod util;
+pub mod util;
 
 mod crypto;
 
